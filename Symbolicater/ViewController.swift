@@ -10,18 +10,18 @@
 import Cocoa
 import UniformTypeIdentifiers
 
+private let dSYMKey = "dSYMPath"
+private let logKey = "logPath"
+private let bundleIdKey = "bundleId"
+
 class ViewController: NSViewController {
     @IBOutlet weak var dsymTextField: DragAndDropTextField!
     @IBOutlet weak var dsymButton: NSButton!
     @IBOutlet weak var logTextField: DragAndDropTextField!
     @IBOutlet weak var logButton: NSButton!
-    @IBOutlet weak var bundleIdTextField: DragAndDropTextField!
+    @IBOutlet weak var bundleIdTextField: NSTextField!
     @IBOutlet var logView: NSTextView!
     @IBOutlet weak var symbolicateButton: NSButton!
-    
-    let dSYMKey = "dSYMPath"
-    let logKey = "logPath"
-    let bundleIdKey = "bundleId"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,7 +39,21 @@ class ViewController: NSViewController {
             bundleIdTextField.stringValue = bundleId
         }
         
+        dsymTextField.onStringSet = { path in
+            UserDefaults.standard.set(path, forKey: dSYMKey)
+            UserDefaults.standard.synchronize()
+        }
+        
+        logTextField.onStringSet = { path in
+            UserDefaults.standard.set(path, forKey: logKey)
+            UserDefaults.standard.synchronize()
+        }
+        
         logView.font = NSFont(name: "SF Pro", size: 12)
+        logView.maxSize = NSSize(width: Double.greatestFiniteMagnitude, height: Double.greatestFiniteMagnitude)
+        logView.isHorizontallyResizable = true
+        logView.textContainer?.widthTracksTextView = false
+        logView.textContainer?.containerSize = NSSize(width: Double.greatestFiniteMagnitude, height: Double.greatestFiniteMagnitude)
     }
 
     override var representedObject: Any? {
@@ -59,8 +73,6 @@ class ViewController: NSViewController {
             panel.beginSheetModal(for: window) { response in
                 if response == .OK, let path = panel.url?.path {
                     self.dsymTextField.stringValue = path
-                    UserDefaults.standard.set(path, forKey: self.dSYMKey)
-                    UserDefaults.standard.synchronize()
                 }
             }
         }
@@ -77,14 +89,14 @@ class ViewController: NSViewController {
             panel.beginSheetModal(for: window) { response in
                 if response == .OK, let path = panel.url?.path {
                     self.logTextField.stringValue = path
-                    UserDefaults.standard.set(path, forKey: self.logKey)
-                    UserDefaults.standard.synchronize()
                 }
             }
         }
     }
     
     @IBAction func didPressSymbolicate(_ sender: NSButton) {
+        self.logView.string = ""
+        
         let dSYMPath = dsymTextField.stringValue
         let logPath = logTextField.stringValue
 

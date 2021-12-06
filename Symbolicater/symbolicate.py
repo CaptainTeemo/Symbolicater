@@ -75,7 +75,7 @@ def read_crash(file_path_sym, file_path_diag, output_file_path, bundle_id):
                     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
                     atos_output = p.stdout.read()
                     table = str.maketrans(dict.fromkeys('\n'))
-                    out_line = line.translate(table) + "   " + str(atos_output) + "\n"
+                    out_line = line.translate(table) + "   " + atos_output.decode('utf8') + "\n"
                     output_file.write(out_line)
 
                     if crash_start_index >= 0 and index < crash_end_index:

@@ -14,10 +14,18 @@ class DragAndDropTextField: NSTextField {
     
     var dragIsOver = false
     
+    var onStringSet: ((String) -> Void)?
+    
     var targetType = NSPasteboard.PasteboardType("NSFilenamesPboardType") {
         didSet {
             self.unregisterDraggedTypes()
             self.registerForDraggedTypes([targetType])
+        }
+    }
+    
+    override var stringValue: String {
+        didSet {
+            self.onStringSet?(stringValue)
         }
     }
     
@@ -61,7 +69,6 @@ class DragAndDropTextField: NSTextField {
                 dragIsOver = false
                 needsDisplay = true
             }
-            
         }
         
         return true
